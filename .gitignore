@@ -1,0 +1,7 @@
+.ipynb_checkpoints/
+.venv/
+Annotations/
+JPEGImages/
+classes.txt
+labels/
+test.py
