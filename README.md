@@ -17,7 +17,7 @@ The YOLOv5 annotation format for a given object presents in an image is the foll
 ```
 Obviously, ```class``` refers to the object's class number while the rest of the annotation refer to center coordinate of the object's bounding box in the image and the width and height of the corresponding bounding box. 
 For each image, the contained object's bounding box annotation is saved as a single line in a text file with the same file name as the image containt the object ***of course without image extension but .txt instead***. In the case there are multiple objects in the same image, there is one annotation text file having as many line as there objects in the image each of which is realted to one object.
-<p align="center"><img width="800" alt="PR_step1" src="https://user-images.githubusercontent.com/26833433/122260847-08be2600-ced4-11eb-828b-8287ace4136c.png"></p>
+<p align="center"><img width="800" alt="PR_step1" src="https://github.com/The-Quantum/insect_recognition/blob/main/notebook/Yolo_annotations_illustration.png"></p>
 
 ## IP102 data format
  
