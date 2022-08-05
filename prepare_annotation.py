@@ -126,7 +126,7 @@ def format_annotation(annotations):
          bbox = annotations[key]["bndbox"]
          coords = np.asarray(
                   [float(bbox["xmin"]), float(bbox["ymin"]), 
-                     float(bbox["xmax"]), float(bbox["ymax"])])
+                   float(bbox["xmax"]), float(bbox["ymax"])])
 
          coords = convert(annotations, coords)
 
@@ -135,7 +135,7 @@ def format_annotation(annotations):
                      + str(coords[1]) + " " \
                      + str(coords[2]) + " " \
                      + str(coords[3])
-         
+
          annotations_list.append(newline)
          
    return annotations_list
@@ -198,29 +198,48 @@ if (__name__ == "__main__"):
    parser.setFeature(xml.sax.handler.feature_namespaces, 0)
 
    # overrides the default Handler
-   handler = XMLHandler()
-   parser.setContentHandler( handler )
+   # handler = XMLHandler()
+   # parser.setContentHandler( handler )
 
    # step into dataset directory
-   DATA_DIR = os.path.join(PRESENT_DIR, "Annotations/")
+   ANNOTATION_DIR  = os.path.join(PRESENT_DIR, "datasets/Annotations/")
+   LABEL_DIR = os.path.join(PRESENT_DIR, "datasets/labels/")
 
-   for filename in tqdm(os.listdir(DATA_DIR)):
-      file_path = os.path.join(DATA_DIR, filename)
+   if not os.path.exists(LABEL_DIR):
+      print ("The %s does not exist, it has been created." % LABEL_DIR)
+      os.makedirs(LABEL_DIR)
+   else:
+      print ("The %s exist, and will contain the formated annotations." % LABEL_DIR)
 
+   for filename in tqdm(os.listdir(ANNOTATION_DIR)):
+      
+      # There are few .txt files in Annotations/ dir which are related to any image.
+      if filename.endswith(".txt"):
+         continue
+
+      file_path = os.path.join(ANNOTATION_DIR, filename)
+
+      # overrides the default Handler
+      handler = XMLHandler()
+      parser.setContentHandler( handler )
       parser.parse(file_path)
-      #print(file_path)
+      
       annotations = handler.endDocument()
-
       annotations_list = format_annotation(annotations)
       
       if filename.split(".")[0] != annotations["filename"].split(".")[0]:
-         print(filename, annotations["filename"])
-         break
+         print("There is a problem with the annotation file %s.\
+               The annotation filename does not macth provided name %s", filename, annotations["filename"])
       
-      filename_txt  = filename.split(".")[0] + ".txt"
-      new_file_path = os.path.join(PRESENT_DIR, "labels/", filename_txt)
+      if '.' in annotations["filename"]:
+         filename_txt = filename.split(".")[0] + ".txt"
+      else :
+         filename_txt = annotations["filename"].split(".")[0] + ".txt"
+
+      new_file_path = os.path.join(LABEL_DIR, filename_txt)
 
       with open(new_file_path, "w") as outfile:
          for line in annotations_list:
             outfile.write(line)
             outfile.write("\n")
+         

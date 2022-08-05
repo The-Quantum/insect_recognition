@@ -1,9 +1,13 @@
 .ipynb_checkpoints/
 .venv/
-Annotations/
-JPEGImages/
-classes.txt
+annotations_test.txt
 labels/
 test.py
 save_for_readme.html
 save_for_readme.odp
+datasets/annotations/  
+datasets/JPEGImages/  
+datasets/labels/  
+datasets/test/
+datasets/train/
+datasets/val/
