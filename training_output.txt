@@ -1,0 +1,213 @@
+### lunching the training
+(insect_recognition)rd-besttic@rd-besttic:~/Documents/project/github_project/insect_recognition/yolov5$ python train.py --img 640 --batch 32 --epochs 10 --data ../datasets/data.yaml --weights yolov5s.pt --workers 1 --project "insect_detection" --name "yolov5s_size640_epochs10_batch32"
+
+### The output at the end of 10 Epochs training
+train: weights=yolov5s.pt, cfg=, data=../datasets/data.yaml, hyp=data/hyps/hyp.scratch-low.yaml, epochs=10, batch_size=32, imgsz=640, rect=False, resume=False, nosave=False, noval=False, noautoanchor=False, noplots=False, evolve=None, bucket=, cache=None, image_weights=False, device=, multi_scale=False, single_cls=False, optimizer=SGD, sync_bn=False, workers=1, project=insect_detection, name=yolov5s_size640_epochs10_batch32, exist_ok=False, quad=False, cos_lr=False, label_smoothing=0.0, patience=100, freeze=[0], save_period=-1, seed=0, local_rank=-1, entity=None, upload_dataset=False, bbox_interval=-1, artifact_alias=latest
+github: skipping check (not a git repository), for updates see https://github.com/ultralytics/yolov5
+requirements: tensorboard>=2.4.1 not found and is required by YOLOv5, attempting auto-update...
+requirements: 'pip install tensorboard>=2.4.1' skipped (offline)
+YOLOv5 🚀 2022-7-28 Python-3.8.10 torch-1.12.0+cu102 CPU
+
+hyperparameters: lr0=0.01, lrf=0.01, momentum=0.937, weight_decay=0.0005, warmup_epochs=3.0, warmup_momentum=0.8, warmup_bias_lr=0.1, box=0.05, cls=0.5, cls_pw=1.0, obj=1.0, obj_pw=1.0, iou_t=0.2, anchor_t=4.0, fl_gamma=0.0, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, degrees=0.0, translate=0.1, scale=0.5, shear=0.0, perspective=0.0, flipud=0.0, fliplr=0.5, mosaic=1.0, mixup=0.0, copy_paste=0.0
+Weights & Biases: run 'pip install wandb' to automatically track and visualize YOLOv5 🚀 runs (RECOMMENDED)
+TensorBoard: Start with 'tensorboard --logdir insect_detection', view at http://localhost:6006/
+Overriding model.yaml nc=80 with nc=102
+
+                 from  n    params  module                                  arguments                     
+  0                -1  1      3520  models.common.Conv                      [3, 32, 6, 2, 2]              
+  1                -1  1     18560  models.common.Conv                      [32, 64, 3, 2]                
+  2                -1  1     18816  models.common.C3                        [64, 64, 1]                   
+  3                -1  1     73984  models.common.Conv                      [64, 128, 3, 2]               
+  4                -1  2    115712  models.common.C3                        [128, 128, 2]                 
+  5                -1  1    295424  models.common.Conv                      [128, 256, 3, 2]              
+  6                -1  3    625152  models.common.C3                        [256, 256, 3]                 
+  7                -1  1   1180672  models.common.Conv                      [256, 512, 3, 2]              
+  8                -1  1   1182720  models.common.C3                        [512, 512, 1]                 
+  9                -1  1    656896  models.common.SPPF                      [512, 512, 5]                 
+ 10                -1  1    131584  models.common.Conv                      [512, 256, 1, 1]              
+ 11                -1  1         0  torch.nn.modules.upsampling.Upsample    [None, 2, 'nearest']          
+ 12           [-1, 6]  1         0  models.common.Concat                    [1]                           
+ 13                -1  1    361984  models.common.C3                        [512, 256, 1, False]          
+ 14                -1  1     33024  models.common.Conv                      [256, 128, 1, 1]              
+ 15                -1  1         0  torch.nn.modules.upsampling.Upsample    [None, 2, 'nearest']          
+ 16           [-1, 4]  1         0  models.common.Concat                    [1]                           
+ 17                -1  1     90880  models.common.C3                        [256, 128, 1, False]          
+ 18                -1  1    147712  models.common.Conv                      [128, 128, 3, 2]              
+ 19          [-1, 14]  1         0  models.common.Concat                    [1]                           
+ 20                -1  1    296448  models.common.C3                        [256, 256, 1, False]          
+ 21                -1  1    590336  models.common.Conv                      [256, 256, 3, 2]              
+ 22          [-1, 10]  1         0  models.common.Concat                    [1]                           
+ 23                -1  1   1182720  models.common.C3                        [512, 512, 1, False]          
+ 24      [17, 20, 23]  1    288579  models.yolo.Detect                      [102, [[10, 13, 16, 30, 33, 23], [30, 61, 62, 45, 59, 119], [116, 90, 156, 198, 373, 326]], [128, 256, 512]]
+[W NNPACK.cpp:51] Could not initialize NNPACK! Reason: Unsupported hardware.
+Model summary: 270 layers, 7294723 parameters, 7294723 gradients, 16.8 GFLOPs
+
+Transferred 343/349 items from yolov5s.pt
+Scaled weight_decay = 0.0005
+optimizer: SGD with parameter groups 57 weight (no decay), 60 weight, 60 bias
+train: Scanning '/home/rd-besttic/Documents/project/github_project/insect_recognition/datasets/train/labels.cache' images and labels... 12816 found, 6 missing, 0 empty, 0 corrupt: 100%|███████
+val: Scanning '/home/rd-besttic/Documents/project/github_project/insect_recognition/datasets/val/labels.cache' images and labels... 3795 found, 1 missing, 0 empty, 0 corrupt: 100%|██████████| 
+Plotting labels to insect_detection/yolov5s_size640_epochs10_batch322/labels.jpg... 
+
+AutoAnchor: 2.92 anchors/target, 1.000 Best Possible Recall (BPR). Current anchors are a good fit to dataset ✅
+Image sizes 640 train, 640 val
+Using 1 dataloader workers
+Logging results to insect_detection/yolov5s_size640_epochs10_batch322
+Starting training for 10 epochs...
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       0/9        0G   0.05812   0.02423   0.09789        54       640: 100%|██████████| 401/401 [1:13:28<00:00, 10.99s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [06:55<00:00,  6.92s/it]                                                         
+                 all       3796       4416      0.006      0.793     0.0166    0.00834
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       1/9        0G   0.04852   0.01992   0.08364        66       640: 100%|██████████| 401/401 [1:22:08<00:00, 12.29s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [07:22<00:00,  7.37s/it]                                                         
+                 all       3796       4416      0.936     0.0363     0.0372     0.0163
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       2/9        0G   0.04867   0.02024   0.07802        48       640: 100%|██████████| 401/401 [1:26:08<00:00, 12.89s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [07:25<00:00,  7.43s/it]                                                         
+                 all       3796       4416      0.761     0.0562     0.0448     0.0182
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       3/9        0G   0.04571   0.02005    0.0749        75       640: 100%|██████████| 401/401 [1:29:54<00:00, 13.45s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [07:30<00:00,  7.52s/it]                                                         
+                 all       3796       4416      0.738     0.0881     0.0743     0.0321
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       4/9        0G   0.04475   0.01975   0.07077        54       640: 100%|██████████| 401/401 [1:22:04<00:00, 12.28s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [06:59<00:00,  7.00s/it]                                                         
+                 all       3796       4416      0.685      0.122      0.115     0.0547
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       5/9        0G   0.04252   0.01955   0.06698        66       640: 100%|██████████| 401/401 [1:20:35<00:00, 12.06s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [06:58<00:00,  6.97s/it]                                                         
+                 all       3796       4416      0.688      0.142      0.132     0.0642
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       6/9        0G   0.04156   0.01908   0.06232        67       640: 100%|██████████| 401/401 [1:20:20<00:00, 12.02s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [07:02<00:00,  7.03s/it]                                                         
+                 all       3796       4416       0.62      0.164      0.145     0.0685
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       7/9        0G   0.04015   0.01852   0.05962        67       640: 100%|██████████| 401/401 [1:20:49<00:00, 12.09s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [07:02<00:00,  7.04s/it]                                                         
+                 all       3796       4416      0.569      0.216       0.19      0.101
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       8/9        0G   0.03915   0.01843   0.05852        69       640: 100%|██████████| 401/401 [1:20:44<00:00, 12.08s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [06:56<00:00,  6.95s/it]                                                         
+                 all       3796       4416      0.615      0.247       0.22      0.117
+
+     Epoch   gpu_mem       box       obj       cls    labels  img_size
+       9/9        0G   0.03722   0.01805   0.05464        63       640: 100%|██████████| 401/401 [1:20:12<00:00, 12.00s/it]                                                                     
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [06:59<00:00,  6.99s/it]                                                         
+                 all       3796       4416       0.56       0.28      0.247      0.135
+
+10 epochs completed in 14.797 hours.
+Optimizer stripped from insect_detection/yolov5s_size640_epochs10_batch322/weights/last.pt, 14.9MB
+Optimizer stripped from insect_detection/yolov5s_size640_epochs10_batch322/weights/best.pt, 14.9MB
+
+Validating insect_detection/yolov5s_size640_epochs10_batch322/weights/best.pt...
+Fusing layers... 
+Model summary: 213 layers, 7285219 parameters, 0 gradients, 16.6 GFLOPs
+               Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95: 100%|██████████| 60/60 [06:25<00:00,  6.43s/it]                                                         
+                 all       3796       4416       0.56       0.28      0.247      0.135
+    rice leaf roller       3796         39      0.236      0.385      0.271      0.145
+rice leaf caterpillar       3796         17      0.127     0.0588      0.065      0.027
+   paddy stem maggot       3796          6          1          0    0.00401     0.0024
+  asiatic rice borer       3796         43      0.172      0.209      0.157     0.0719
+   yellow rice borer       3796         22       0.46       0.31      0.286      0.126
+     rice gall midge       3796         22          1          0      0.233     0.0954
+        Rice Stemfly       3796          8          1          0      0.177      0.118
+  brown plant hopper       3796         18          1          0     0.0653     0.0299
+white backed plant hopper       3796         11      0.111      0.182     0.0903     0.0514
+small brown plant hopper       3796         15          1          0      0.101     0.0482
+   rice water weevil       3796         30      0.263       0.19       0.19      0.134
+     rice leafhopper       3796         25      0.243       0.36      0.262      0.144
+grain spreader thrips       3796          4          1          0    0.00346    0.00277
+     rice shell pest       3796          5          1          0     0.0349     0.0234
+                grub       3796        135      0.632      0.904      0.884      0.442
+        mole cricket       3796        175      0.669      0.971      0.933      0.491
+            wireworm       3796        111      0.455      0.715      0.693      0.381
+ white margined moth       3796         12          1          0     0.0898     0.0694
+       black cutworm       3796         65      0.232      0.462      0.231      0.139
+       large cutworm       3796         39      0.202      0.282      0.152     0.0994
+      yellow cutworm       3796         36      0.109      0.139      0.119     0.0859
+          red spider       3796         27      0.338      0.741      0.419      0.266
+          corn borer       3796         81      0.271      0.519      0.295      0.173
+           army worm       3796         33      0.129      0.394      0.149     0.0687
+              aphids       3796        248      0.361      0.823      0.561      0.244
+ Potosiabre vitarsis       3796         51      0.469      0.725      0.534      0.331
+         peach borer       3796         47      0.349      0.574      0.573      0.383
+ english grain aphid       3796         64      0.183      0.182      0.119     0.0494
+           green bug       3796          4          1          0    0.00256    0.00153
+bird cherry-oataphid       3796         18          0          0     0.0429      0.023
+ wheat blossom midge       3796          6          1          0     0.0332     0.0114
+    penthaleus major       3796         15       0.69        0.2       0.35      0.135
+longlegged spider mite       3796         13      0.104      0.231      0.195     0.0716
+  wheat phloeothrips       3796         18      0.182     0.0556     0.0902     0.0301
+        wheat sawfly       3796         27      0.381      0.037      0.182     0.0569
+cerodonta denticornis       3796          6          1          0    0.00302   0.000605
+            beet fly       3796          6          1          0    0.00359    0.00204
+         flea beetle       3796         81      0.673      0.654      0.736      0.365
+   cabbage army worm       3796         50      0.118       0.22      0.149     0.0982
+      beet army worm       3796        102      0.359      0.539      0.388      0.223
+     Beet spot flies       3796         12          1          0     0.0386     0.0229
+         meadow moth       3796         23          0          0      0.102     0.0615
+         beet weevil       3796         32      0.248     0.0938      0.196      0.096
+sericaorient alismots chulsky       3796         18      0.197      0.167      0.249      0.192
+      alfalfa weevil       3796         16          1          0     0.0431     0.0269
+        flax budworm       3796         62     0.0826     0.0968     0.0749     0.0441
+   alfalfa plant bug       3796         55      0.182      0.218      0.151      0.071
+ tarnished plant bug       3796         69      0.275      0.494       0.33      0.188
+         Locustoidea       3796        105      0.249      0.533      0.384      0.187
+        lytta polita       3796         54          0          0      0.145     0.0588
+legume blister beetle       3796         99      0.259      0.677      0.389      0.169
+      blister beetle       3796        210       0.35      0.862      0.517      0.229
+therioaphis maculata Buckton       3796          1          1          0          0          0
+   odontothrips loti       3796         13          0          0      0.111     0.0798
+              Thrips       3796          7          1          0      0.033     0.0209
+alfalfa seed chalcid       3796          3          1          0    0.00102    0.00051
+      Pieris canidia       3796         15          1          0      0.135     0.0726
+    Apolygus lucorum       3796          7          1          0     0.0272     0.0158
+         Limacodidae       3796         36      0.132      0.194      0.105     0.0306
+ oides decempunctata       3796         49      0.653      0.755      0.776      0.387
+Pseudococcus comstocki Kuwana       3796          8          1          0      0.189     0.0834
+  parathrene regalis       3796          7          1          0     0.0108     0.0052
+         Ampelophaga       3796         51      0.606      0.902      0.909      0.625
+  Lycorma delicatula       3796         74      0.855      0.932       0.94      0.613
+         Xylotrechus       3796         33      0.407      0.394      0.332      0.223
+   Cicadella viridis       3796         43      0.365      0.907      0.764      0.435
+             Miridae       3796        247      0.457      0.806      0.635      0.317
+Trialeurodes vaporariorum       3796         25          0          0     0.0482     0.0222
+Erythroneura apicalis       3796          2          1          0          0          0
+      Papilio xuthus       3796         20      0.315        0.9      0.557      0.293
+Panonchus citri McGregor       3796         12      0.128      0.417      0.119     0.0546
+Icerya purchasi Maskell       3796         56      0.515      0.375      0.384      0.191
+  Unaspis yanonensis       3796        154      0.124      0.929      0.733      0.252
+  Ceroplastes rubens       3796         65      0.544      0.754      0.699      0.266
+Chrysomphalus aonidum       3796         14     0.0553      0.214     0.0549     0.0267
+Nipaecoccus vastalor       3796          3          1          0     0.0891     0.0574
+Aleurocanthus spiniferus       3796         22     0.0543      0.318     0.0409     0.0132
+Tetradacus c Bactrocera minax       3796         15          1          0     0.0272     0.0147
+Dacus dorsalis(Hendel)       3796         24      0.633       0.25      0.409      0.266
+Bactrocera tsuneonis       3796          2          1          0    0.00359    0.00323
+     Prodenia litura       3796         93      0.304      0.573      0.386      0.223
+       Adristyrannus       3796         31          1          0      0.101     0.0679
+Phyllocnistis citrella Stainton       3796          6          1          0     0.0221     0.0134
+Toxoptera citricidus       3796          1          1          0    0.00197    0.00158
+  Toxoptera aurantii       3796          6          1          0    0.00529    0.00288
+Aphis citricola Vander Goot       3796          3          1          0     0.0205    0.00664
+Scirtothrips dorsalis Hood       3796         17          1          0     0.0969     0.0217
+        Dasineura sp       3796          9          1          0    0.00276    0.00158
+Lawana imitata Melichar       3796         26      0.418      0.731      0.435      0.285
+Salurnis marginella Guerr       3796         40      0.575      0.725       0.69      0.454
+Deporaus marginatus Pascoe       3796         17          1          0     0.0714     0.0248
+Chlumetia transversa       3796         11          1          0     0.0337     0.0227
+Mango flat beak leafhopper       3796          3          1          0    0.00434    0.00347
+Rhytidodera bowrinii white       3796         25      0.277       0.44      0.188      0.112
+Sternochetus frigidus       3796         10      0.256        0.2      0.145     0.0833
+        Cicadellidae       3796        620       0.69      0.953      0.914      0.628
+Results saved to insect_detection/yolov5s_size640_epochs10_batch322

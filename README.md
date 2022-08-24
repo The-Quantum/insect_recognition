@@ -5,8 +5,6 @@ The method consist of retraining [YOLOv5](https://github.com/ultralytics/yolov5)
 
 Insect pests are well known to be a major cause of damage to the commercially important agricultural crops [IP102: A Large-Scale Benchmark Dataset for Insect Pest Recognition](https://openaccess.thecvf.com/content_CVPR_2019/papers/Wu_IP102_A_Large-Scale_Benchmark_Dataset_for_Insect_Pest_Recognition_CVPR_2019_paper.pdf). Therefore, in the framework of YOLOv5 test on the substentially different dataset [IP102] represent a very good choice. 
 
-# Set virtual environnement [TO DO]
-
 # Data preparation
 
 ## YOLOv5 data format
@@ -49,7 +47,7 @@ Now, run the following code from the `root/`
 ```
 You will see the timeline of the reformatation process. This code will create `labels` folder and located the formated annotations. 
 
-The last think to do concerning the data set should have been to download `classes.txt`[https://github.com/xpwu95/IP102/blob/master/classes.txt] file which containts the 102 classes of insects. I have done that and you can find this file in `datasets/`.
+The last think to do concerning the data set should have been to download [`classes.txt`](https://github.com/xpwu95/IP102/blob/master/classes.txt) file which containts the 102 classes of insects. I have done that and you can find this file in `datasets/`.
 
 ## TRAIN TEST VAL SPLIT
 To train  YOLOv5 the data set have to be split into `train/`, `val/` and `test/` folder. Each of this file folder should contains two subfolders including `images/` and `labels/`. The modules `python train_test_val_split.py` does this properly.
@@ -59,3 +57,30 @@ To train  YOLOv5 the data set have to be split into `train/`, `val/` and `test/`
 This will first create all the require folders and subfolders within `dataset/` parent folder. Then, shuffles and splits the images form `JPECImages/` into `train/`, `val/`, `test/` subset in proportion of `0.6, 0.2, 0.2`. Then copy each image or labels of each set to the corresponding `images/` or `labels/` folder.
 
 # YOLOv5 training of IP102 dataset
+To execute this repositoy on your local computer, the first step is to clone it.
+## Clone the project 
+To clone this repository, execute the following code.
+```
+git clone https://github.com/The-Quantum/insect_recognition.git
+```
+## Set virtual environment
+Once the repository has been cloned, navigate into the root dir and set the the virtual environment. It must includes the requirement of YOLOv5 as well as packages needed for preprocessiong. I sumerized all those packages into `requirement.txt` file. Personaly, I often combine `pypenv` and `pip` for virtualenv and packages management respectively. The great think with `pypenv` is the possibility of installing many `python` version whithout conflictual interaction. Therefore, the following code is my protocol to set my virtualenv. Fill free to use any other protocall your confortable with.
+
+```
+ cd insect_recognition/           # navigate into the root dir where the virtualenv should be located
+ mkdir .venv/                     # create the .venv/ dir to hold the virtualenv
+ pypenv -python3.x.x              # this provided python version should be available
+ source .venv/bin/activate        # activate the virtualenv
+ pip install -r requirement.txt   # install all the required packages
+``` 
+## Run the training
+Once every think is ready, to start the training, navigate into `insect_recognition/yolov5` and run the following code.
+
+```
+ python train.py --img 640 --batch 32 --epochs 5\
+ --data ../datasets/data.yaml --weights yolov5s.pt --workers 1\
+ --project "insect_detection" --name "yolov5s_size640_epochs5_batch32"
+```
+The option `--img` refers to size of the imput image. In the above code it is set to 640. Therefore, all images will be resize to 640x640 before feeding into the model.`--data` refers to the YAML file contening the data configuration. `--weights` referes to the pretrained YOLOv5 weights. Given the value of `--project` and `--name` options the results of the training will be save in `insect_detection/yolov5s_size640_epochs5_batch32`. More detail concerning YOLOv5 options can be find [here](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data).
+
+The output of the terminal after 10 epochs training is resumed [training_output.txt]()
