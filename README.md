@@ -83,4 +83,4 @@ Once every think is ready, to start the training, navigate into `insect_recognit
 ```
 The option `--img` refers to size of the imput image. In the above code it is set to 640. Therefore, all images will be resize to 640x640 before feeding into the model.`--data` refers to the YAML file contening the data configuration. `--weights` referes to the pretrained YOLOv5 weights. Given the value of `--project` and `--name` options the results of the training will be save in `insect_detection/yolov5s_size640_epochs5_batch32`. More detail concerning YOLOv5 options can be find [here](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data).
 
-The output of the terminal after 10 epochs training is resumed [training_output.txt]()
+The output of the terminal after 10 epochs training is resumed [training_output.txt](https://github.com/The-Quantum/insect_recognition/blob/main/training_output.txt).
