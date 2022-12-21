@@ -99,4 +99,4 @@
 99  Mango flat beak leafhopper		
 100 Rhytidodera bowrinii white		
 101 Sternochetus frigidus			
-102 Cicadellidae					
+102 Cicadellidae	
