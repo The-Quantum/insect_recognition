@@ -11,3 +11,10 @@ datasets/labels/
 datasets/test/
 datasets/train/
 datasets/val/
+*.tar
+datasets/Annotations/
+datasets/JPEGImages.tar
+datasets/images/
+datasets/labels_damages/
+	
+

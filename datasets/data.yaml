@@ -102,6 +102,6 @@ names:
 - Sternochetus frigidus
 - Cicadellidae
 nc: 102
-path: /home/rd-besttic/Documents/project/github_project/insect_recognition/datasets
-train: /home/rd-besttic/Documents/project/github_project/insect_recognition/datasets/train
-val: /home/rd-besttic/Documents/project/github_project/insect_recognition/datasets/val
+path: /home/donald/Documents/project/github_project/insect_recognition/datasets
+train: /home/donald/Documents/project/github_project/insect_recognition/datasets/train
+val: /home/donald/Documents/project/github_project/insect_recognition/datasets/val
