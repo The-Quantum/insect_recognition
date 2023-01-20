@@ -1,245 +1,256 @@
 import os
-import re
-import xml.sax
+import xml.etree.ElementTree as ET
+import argparse
 import numpy as np
 from tqdm import tqdm
 
-PRESENT_DIR  = os.path.dirname(os.path.realpath(__file__))
+class XMLHandler():
+    def __init__(self, data_dir: str,
+                 output_format :str = "single",
+                 Yolo_annotation_dir: str = "Yolo_annotation/",
+                 classes_filepath: str = "damage_classes.txt"):
+        
+        self.method = output_format
+        self.data_dir = data_dir
+        self.Yolo_annotation_dir = os.path.join(
+            data_dir, Yolo_annotation_dir
+        )
 
-class XMLHandler(xml.sax.ContentHandler):
-   """Handle the parse XML file and extract all annotions
-      This annotations incule the filename, the size of the 
-      corresponding image, the object name (that is the class name)
-      and bounding boxes of each object in the image.
-   """
-   def __init__(self):
-      """ Initialized all parameters needed in anotation dict"""
-      self.current_data = ""
-      self.filename = ""
-      self.name   = ""
-      self.width  = ""
-      self.height = ""
-      self.depth  = ""
-      self.xmin   = ""
-      self.ymin   = ""
-      self.xmax   = ""
-      self.ymax   = ""
-      self.annotations = {}
-      self.increment_object = 0
-      
-   def startElement(self, tag, attributes):
-      """Intialized the corresponding annotation sub dict given the tag name 
-      """
-      self.current_data = tag
-      
-      if tag == "size":
-        self.annotations["size"] = {}
-
-      elif tag == "object":
-        if self.increment_object == 0:
-            self.key_name = tag
-            self.annotations[self.key_name] = {}
-        else :
-            self.key_name = tag + "_" + str(self.increment_object)
-            self.annotations[self.key_name] = {}
-
-        self.increment_object += 1
-
-      elif tag == "name":
-        self.annotations[self.key_name]["name"] = ""
-
-      elif tag == "bndbox":
-        self.annotations[self.key_name][tag] = {}
+        if not os.path.exists(self.Yolo_annotation_dir):
+            print(f"""Not existing annotation directory.
+            It is created at : {self.Yolo_annotation_dir}""")
+            os.makedirs(self.Yolo_annotation_dir)
             
-   def endElement(self, tag):
-      """Check the end of current element and reinitilized 
-         self.current element to an empty string
-      """
-   #  if self.current_data == "width":
-   #     print("Width : ", self.width, "CONTENT :", tag)
-   #  elif self.current_data == "height":
-   #     print("height : ", self.height)
-   #  elif self.current_data == "depth":
-   #     print("depth : ", self.depth)
-   #  elif self.current_data == "ymin":
-   #     print("ymin : ", self.ymin)
-   #  elif self.current_data == "xmax":
-   #     print("xmax : ", self.xmax)
-   #  elif self.current_data == "ymax":
-   #     print("ymax : ", self.ymax)
+        if os.path.expanduser(classes_filepath):
+            self.classes = {
+                name: idx+1 for idx, name in enumerate(
+                  open(classes_filepath).read().splitlines()
+                )
+            }
+        else :
+            classes_filepath = os.path.join(
+                data_dir, "damage_classes.txt"
+            )
 
-   #  if self.current_data == "annotation":
-   #    print(parameters)
-      self.current_data = ""
+            self.classes = {
+                name: idx+1 for idx, name in enumerate(
+                    open(classes_filepath).read().splitlines()
+                )
+            }
+    
+    def parse(self, annotation_filepath):
+        
+        tree = ET.parse(annotation_filepath)
+        
+        annotations = {
+            "filename": tree.findtext("filename"), 
+            "size": {
+                "depth":tree.findtext("./size/depth"),
+                "height":tree.findtext("./size/height"),
+                "width":tree.findtext("./size/width")
+            }
+        }
+        
+        for index, obj in enumerate(tree.findall("object")):
+            
+            object_tag = "object" if index < 1 else f"object_{index}"
+            
+            annotations[object_tag] = {
+                "name"  : obj.findtext("name"), 
+                "bndbox": {
+                    "xmin": obj.findtext("bndbox/xmin"), 
+                    "ymin": obj.findtext("bndbox/ymin"),
+                    "xmax": obj.findtext("bndbox/xmax"),
+                    "ymax": obj.findtext("bndbox/ymax")
+                }
+            }
+            
+        return annotations
+    
+    def to_yolo_fromat(self, annotations):
 
-   def endDocument(self):
-      """Return the annotations at the end of each document"""
-      return self.annotations
+        annotations_list = []
+
+        object_keys = [
+            key for key in annotations.keys() if "object" in key
+        ]
+        
+        if self.method == "single":
+            
+            img_dirs = [
+                x[0] for x in os.walk(self.data_dir) if "image" in x[0].lower()
+            ]
+            
+            for img_dir in img_dirs:
+                img_path = os.path.join(
+                    img_dir, annotations["filename"]
+                )
+                if os.path.exists(img_path):
+                    newline = img_path + " "
+
+        elif self.method == "multiple":
+            newline = list()
+
+        for key in object_keys:
+            bbox = annotations[key]["bndbox"]
+
+            if self.method == "single":
+                try :
+                    class_id = self.classes[annotations[key]["name"]]
+                except KeyError:
+                    class_id = 111
+                object_annotation = " {},{},{},{},{} ".format(
+                    str(float(bbox["xmin"])), str(float(bbox["ymin"])),
+                    str(float(bbox["xmax"])), str(float(bbox["ymax"])), class_id
+                )
+                newline += object_annotation
+
+            elif self.method == "multiple" :
+                coords = np.asarray(
+                      [float(bbox["xmin"]), float(bbox["ymin"]), 
+                       float(bbox["xmax"]), float(bbox["ymax"])])
+                coords = self.convert(annotations, coords)
+
+                newline.append(
+                    annotations[key]["name"] + " " \
+                    + str(coords[0]) + " " + str(coords[1]) + " " \
+                    + str(coords[2]) + " " + str(coords[3])
+                )
+        
+        annotations_list.append(newline)
+        
+        return annotations_list
+    
+    def convert(self, annotations, coords):
          
-   def characters(self, content):
-      """Browser the parsed file and fill self.annotations with 
-      the corresponding data
-      """
-      if self.current_data == "filename":
-         self.filename = content
-         self.annotations["filename"] = self.filename
+        """ Transform Open Images Dataset bounding boxes
+            XMin, YMin, XMax, YMax annotaton format into
+            the normalized yolo format.
+           input :
+           -----
+           filename_wihtout_extension : str()
+              Image file path without .jpg extension. File by default available in Label/ subdir
+           coords : np.array()
+              OID coordinate of bounding boxes. 
+           return :
+           ------
+           coords : np.array()
+              New bounding boxes coordinate in YOLO formats.
+        """
+        
+        coords[2] -= coords[0]
+        coords[3] -= coords[1]   
 
-      elif self.current_data == "name":
-         self.name = content
-         self.annotations[self.key_name]["name"] = self.name
-         
-      elif self.current_data == "xmin":
-         self.xmin = content
-         self.annotations[self.key_name]["bndbox"]["xmin"] = self.xmin
+        x_diff = int(coords[2]/2)
+        y_diff = int(coords[3]/2)
 
-      elif self.current_data == "ymin":
-         self.ymin = content
-         self.annotations[self.key_name]["bndbox"]["ymin"] = self.ymin
+        coords[0] = coords[0]+x_diff
+        coords[1] = coords[1]+y_diff
 
-      elif self.current_data == "xmax":
-         self.xmax = content
-         self.annotations[self.key_name]["bndbox"]["xmax"] = self.xmax
+        image_dim = annotations["size"]
 
-      elif self.current_data == "ymax":
-         self.ymax = content
-         self.annotations[self.key_name]["bndbox"]["ymax"] = self.ymax
+        coords[0] /= float(image_dim["width"])
+        coords[1] /= float(image_dim["height"])
+        coords[2] /= float(image_dim["width"])
+        coords[3] /= float(image_dim["height"])
+        
+        (coords[0], coords[1], coords[2], coords[3]) = (
+            round(coords[0], 4), round(coords[1], 4), 
+            round(coords[2], 4), round(coords[3], 4)
+        )
+        return coords    
+    
+    def txt_file_path(self, annotation_filepath, annotations):
+        file_name = annotation_filepath.split("/")[-1]
+        if file_name.split(".")[0] == annotations["filename"].split(".")[0]:
 
-      elif self.current_data == "width":
-         self.width = content
-         self.annotations["size"]["width"] = self.width
+            filename_txt = file_name.split(".")[0] + ".txt"
 
-      elif self.current_data == "height":
-         self.height = content
-         self.annotations["size"]["height"] = self.height
+        elif file_name.split(".")[0] != annotations["filename"].split(".")[0]:
+            # TO DO : turn this into a warning
+            print("There is a problem with the annotation file %s.\
+               The annotation filename does not macth provided name %s",\
+               file_name, annotations["filename"])
+            
+        elif '.' in annotations["filename"]:
+            filename_txt = annotations["filename"].split(".")[0] + ".txt"
+            
+        else :
+            # TO DO : turn this into a warning 
+            print(f"Unusual format for the file : {annotations['filename']}")
+            filename_txt = file_name.split(".")[0].split("/")[-1] + ".txt"
+            
+        new_file_path = os.path.join(self.Yolo_annotation_dir, filename_txt)
+        
+        return new_file_path
+    
+    def write_file(self, annotation_filepath, annotations, outfileobj = None):
 
-      elif self.current_data == "depth":
-         self.depth = content
-         self.annotations["size"]["depth"] = self.depth
+        new_file_path = self.txt_file_path(annotation_filepath, annotations)
+        annotations_list = self.to_yolo_fromat(annotations)
 
-def format_annotation(annotations):
-   bbox_key = []
-   annotations_list = []
-   for key in annotations.keys():
-      if 'object' in key :
-         bbox_key.append(key)
-   
-         bbox = annotations[key]["bndbox"]
-         coords = np.asarray(
-                  [float(bbox["xmin"]), float(bbox["ymin"]), 
-                   float(bbox["xmax"]), float(bbox["ymax"])])
+        if self.method == "single":
 
-         coords = convert(annotations, coords)
+            for line in annotations_list:
+                outfileobj.write(line)
+                outfileobj.write("\n")
 
-         newline = annotations[key]["name"] + " " \
-                     + str(coords[0]) + " " \
-                     + str(coords[1]) + " " \
-                     + str(coords[2]) + " " \
-                     + str(coords[3])
-
-         annotations_list.append(newline)
-         
-   return annotations_list
-
-def convert(annotations, coords):
-   """ Transform Open Images Dataset bounding boxes
-      XMin, YMin, XMax, YMax annotaton format into
-      the normalized yolo format.
-
-   input :
-   -----
-   filename_wihtout_extension : str()
-      Image file path without .jpg extension. File by default available in Label/ subdir
-   coords : np.array()
-      OID coordinate of bounding boxes. 
-
-   return :
-   ------
-   coords : np.array()
-      New bounding boxes coordinate in YOLO formats.    
-   """
-   #print(coords)
-   coords[2] -= coords[0]
-   coords[3] -= coords[1]   
-
-   x_diff = int(coords[2]/2)
-   y_diff = int(coords[3]/2)
-
-   coords[0] = coords[0]+x_diff
-   coords[1] = coords[1]+y_diff
-   
-   image_dim = annotations["size"]
-   
-   coords[0] /= float(image_dim["width"])
-   coords[1] /= float(image_dim["height"])
-   coords[2] /= float(image_dim["width"])
-   coords[3] /= float(image_dim["height"])
-
-   return coords
-
-def remove_first_end_spaces(string):
-   return "".join(string.rstrip().lstrip())
-
-def parse_classes():
-   classes = {}
-   with open("classes.txt", "r") as myFile:
-      for num, line in enumerate(myFile, 0):
-         line = line.rstrip("\n")
-         line = re.sub(r'[0-9]+', '', line)
-         line = remove_first_end_spaces(line)
-         classes[line] = num
-   return classes
-   
+        elif self.method == "multiple":
+            #print(annotations_list, new_file_path)
+            with open(new_file_path, "w") as outfile:
+                for line in annotations_list[0]:
+                    outfile.write(line)
+                    outfile.write("\n")
+        
 if (__name__ == "__main__"):
 
-   # creates an XMLReader
-   parser = xml.sax.make_parser()
+    data_dir = "/home/donald/Documents/project/github_project/test_prepare_data/"
+    data_dir2 = "/home/donald/Documents/project/github_project/rddc2020/yolov5/datasets/road2020/train"
+    classes_filepath = "/home/donald/Documents/project/github_project/rddc2020/yolov5/datasets/road2020/damage_classes.txt"
+    classes_filepath2 = "/home/donald/Documents/project/github_project/rddc2020/yolov5/datasets/road2020/damages_details_classes.txt"
 
-   # turnsoff namepsaces
-   parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_dir', type=str, default=data_dir2, help='data directory')
+    parser.add_argument('--output_format', type=str, default="single", help='output in single or multiple file')
+    parser.add_argument('--classes_filepath', type=str, default=classes_filepath2, help='class name file')
+    parser.add_argument('--output_dir', type=str, default="Yolo_annotation3/", help='output text directory')
+    parser.add_argument('--annot_file', type=str, default="all_annot.txt", help='output file with all annotations')
+    opt = parser.parse_args()
 
-   # overrides the default Handler
-   # handler = XMLHandler()
-   # parser.setContentHandler( handler )
+    Preparator = XMLHandler(
+        data_dir = opt.data_dir, 
+        output_format = opt.output_format, 
+        Yolo_annotation_dir = opt.output_dir,
+        classes_filepath = opt.classes_filepath
+    )
 
-   # step into dataset directory
-   ANNOTATION_DIR  = os.path.join(PRESENT_DIR, "datasets/Annotations/")
-   LABEL_DIR = os.path.join(PRESENT_DIR, "datasets/labels/")
+    annotation_dirs = [
+                x[0] for x in os.walk(opt.data_dir) if "xmls" in x[0].lower()
+            ]
 
-   if not os.path.exists(LABEL_DIR):
-      print ("The %s does not exist, it has been created." % LABEL_DIR)
-      os.makedirs(LABEL_DIR)
-   else:
-      print ("The %s exist, and will contain the formated annotations." % LABEL_DIR)
+    if opt.output_format == "single":
+        all_annotations_filepath = os.path.join(
+            opt.data_dir, opt.annot_file
+        )
+        f = open(all_annotations_filepath, "w")
 
-   for filename in tqdm(os.listdir(ANNOTATION_DIR)):
-      
-      # There are few .txt files in Annotations/ dir which are related to any image.
-      if filename.endswith(".txt"):
-         continue
+    for dir in tqdm(annotation_dirs):
+        
+        for file in os.listdir(dir):
+            annotation_file_path = os.path.join(dir, file)
+            
+            annotations = Preparator.parse(annotation_file_path)
+            if "object" not in annotations.keys():
+                continue
 
-      file_path = os.path.join(ANNOTATION_DIR, filename)
-
-      # overrides the default Handler
-      handler = XMLHandler()
-      parser.setContentHandler( handler )
-      parser.parse(file_path)
-      
-      annotations = handler.endDocument()
-      annotations_list = format_annotation(annotations)
-      
-      if filename.split(".")[0] != annotations["filename"].split(".")[0]:
-         print("There is a problem with the annotation file %s.\
-               The annotation filename does not macth provided name %s", filename, annotations["filename"])
-      
-      if '.' in annotations["filename"]:
-         filename_txt = filename.split(".")[0] + ".txt"
-      else :
-         filename_txt = annotations["filename"].split(".")[0] + ".txt"
-
-      new_file_path = os.path.join(LABEL_DIR, filename_txt)
-
-      with open(new_file_path, "w") as outfile:
-         for line in annotations_list:
-            outfile.write(line)
-            outfile.write("\n")
-         
+            if opt.output_format == "single":
+                Preparator.write_file(
+                    annotation_file_path, annotations, outfileobj=f
+                )
+            elif opt.output_format == "multiple":
+                Preparator.write_file(
+                    annotation_file_path, annotations
+                )
+    
+    if opt.output_format == "single":
+        f.close() 

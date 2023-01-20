@@ -16,5 +16,6 @@ datasets/Annotations/
 datasets/JPEGImages.tar
 datasets/images/
 datasets/labels_damages/
+prepare_annotation3.py
 	
 
