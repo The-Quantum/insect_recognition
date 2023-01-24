@@ -230,12 +230,12 @@ if (__name__ == "__main__"):
                     opt.input_annot_dir.lower() in x[0].lower()
     ]
     
-    # Exclude from the annotation arborescente all the annotations dirs
-    #if opt.output_format == "multiple":
-    #    annotation_dirs = [
-    #        x for x in annotation_dirs if opt.output_dir not in x
-    #    ]
-    print(annotation_dirs)
+    # Exclude from the newly created annotation arborescente all the annotations dirs
+    if os.path.exists(os.path.join(opt.data_dir, opt.output_dir)):
+        annotation_dirs = [
+            x for x in annotation_dirs if opt.output_dir.lower() not in x.lower()
+        ]
+    
     if opt.output_format == "single":
         all_annotations_filepath = os.path.join(
             opt.data_dir, opt.annot_file
@@ -261,6 +261,3 @@ if (__name__ == "__main__"):
     
     if opt.output_format == "single":
         f.close() 
-
-# python prepare_annotation.py --data_dir ../rddc2020/yolov5/datasets/road2020/train --classes_filepath ../rddc2020/yolov5/datasets/road2020/damages_details_classes.txt --output_dir Yolo_annotation_1 --annot_file Yolo_TF_annotation --output_format multiple
-# python prepare_annotation.py --data_dir ../rddc2020/yolov5/datasets/road2020/train --classes_filepath ../rddc2020/yolov5/datasets/road2020/damages_details_classes.txt --output_dir Yolo_annotation_1 --annot_file Yolo_TF_annotation --output_format single

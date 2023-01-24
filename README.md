@@ -61,7 +61,7 @@ The reason for removing this file is that its content organisation is differemen
 
 Now, run the following code from the `insect_recognition/` root directory of this code. 
 ```
- python prepare_annotation.py
+ python prepare_annotation.py --output_format multiple --input_annot_dir Yolo_annotation
 ```
 You will see the timeline of the reformatation process. This code will create `Yolo_annotation/` folder to located the formated annotations. 
 Note that `python prepare_annotation.py` can take six differents arguments including :
