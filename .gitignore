@@ -17,5 +17,5 @@ datasets/JPEGImages.tar
 datasets/images/
 datasets/labels_damages/
 prepare_annotation3.py
-	
-
+datasets/Yolo_annotation/
+datasets/all_annot.txt

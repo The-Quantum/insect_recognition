@@ -15,8 +15,9 @@ class XMLHandler():
         self.Yolo_annotation_dir = os.path.join(
             data_dir, Yolo_annotation_dir
         )
-
-        if not os.path.exists(self.Yolo_annotation_dir):
+        
+        if (self.method == "multiple") and \
+                (not os.path.exists(self.Yolo_annotation_dir)):
             print(f"""Not existing annotation directory.
             It is created at : {self.Yolo_annotation_dir}""")
             os.makedirs(self.Yolo_annotation_dir)
@@ -50,6 +51,11 @@ class XMLHandler():
                 "width":tree.findtext("./size/width")
             }
         }
+
+        if "." not in annotations["filename"]:
+            
+            annotations["filename"] = annotations["filename"] + "." + \
+                                tree.findtext("path").split(".")[-1]
         
         for index, obj in enumerate(tree.findall("object")):
             
@@ -80,7 +86,6 @@ class XMLHandler():
             img_dirs = [
                 x[0] for x in os.walk(self.data_dir) if "image" in x[0].lower()
             ]
-            
             for img_dir in img_dirs:
                 img_path = os.path.join(
                     img_dir, annotations["filename"]
@@ -162,6 +167,7 @@ class XMLHandler():
     
     def txt_file_path(self, annotation_filepath, annotations):
         file_name = annotation_filepath.split("/")[-1]
+        
         if file_name.split(".")[0] == annotations["filename"].split(".")[0]:
 
             filename_txt = file_name.split(".")[0] + ".txt"
@@ -171,8 +177,6 @@ class XMLHandler():
             print("There is a problem with the annotation file %s.\
                The annotation filename does not macth provided name %s",\
                file_name, annotations["filename"])
-            
-        elif '.' in annotations["filename"]:
             filename_txt = annotations["filename"].split(".")[0] + ".txt"
             
         else :
@@ -204,17 +208,13 @@ class XMLHandler():
         
 if (__name__ == "__main__"):
 
-    data_dir = "/home/donald/Documents/project/github_project/test_prepare_data/"
-    data_dir2 = "/home/donald/Documents/project/github_project/rddc2020/yolov5/datasets/road2020/train"
-    classes_filepath = "/home/donald/Documents/project/github_project/rddc2020/yolov5/datasets/road2020/damage_classes.txt"
-    classes_filepath2 = "/home/donald/Documents/project/github_project/rddc2020/yolov5/datasets/road2020/damages_details_classes.txt"
-
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default=data_dir2, help='data directory')
-    parser.add_argument('--output_format', type=str, default="single", help='output in single or multiple file')
-    parser.add_argument('--classes_filepath', type=str, default=classes_filepath2, help='class name file')
-    parser.add_argument('--output_dir', type=str, default="Yolo_annotation3/", help='output text directory')
+    parser.add_argument('--data_dir', type=str, default="datasets/", help='root data directory')
+    parser.add_argument('--output_format', type=str, default="multiple", help='output in single or multiple file')
+    parser.add_argument('--classes_filepath', type=str, default="datasets/classes.txt", help='class name file')
+    parser.add_argument('--output_dir', type=str, default="Yolo_annotation", help='output text directory')
     parser.add_argument('--annot_file', type=str, default="all_annot.txt", help='output file with all annotations')
+    parser.add_argument('--input_annot_dir', type=str, default="xmls", help='End input folder name where are annotation files')
     opt = parser.parse_args()
 
     Preparator = XMLHandler(
@@ -223,11 +223,19 @@ if (__name__ == "__main__"):
         Yolo_annotation_dir = opt.output_dir,
         classes_filepath = opt.classes_filepath
     )
-
+    
+    # Identify in datasets/ arborescence all annotation dirs
     annotation_dirs = [
-                x[0] for x in os.walk(opt.data_dir) if "xmls" in x[0].lower()
-            ]
-
+        x[0] for x in os.walk(opt.data_dir) if 
+                    opt.input_annot_dir.lower() in x[0].lower()
+    ]
+    
+    # Exclude from the annotation arborescente all the annotations dirs
+    #if opt.output_format == "multiple":
+    #    annotation_dirs = [
+    #        x for x in annotation_dirs if opt.output_dir not in x
+    #    ]
+    print(annotation_dirs)
     if opt.output_format == "single":
         all_annotations_filepath = os.path.join(
             opt.data_dir, opt.annot_file
@@ -238,7 +246,6 @@ if (__name__ == "__main__"):
         
         for file in os.listdir(dir):
             annotation_file_path = os.path.join(dir, file)
-            
             annotations = Preparator.parse(annotation_file_path)
             if "object" not in annotations.keys():
                 continue
@@ -254,3 +261,6 @@ if (__name__ == "__main__"):
     
     if opt.output_format == "single":
         f.close() 
+
+# python prepare_annotation.py --data_dir ../rddc2020/yolov5/datasets/road2020/train --classes_filepath ../rddc2020/yolov5/datasets/road2020/damages_details_classes.txt --output_dir Yolo_annotation_1 --annot_file Yolo_TF_annotation --output_format multiple
+# python prepare_annotation.py --data_dir ../rddc2020/yolov5/datasets/road2020/train --classes_filepath ../rddc2020/yolov5/datasets/road2020/damages_details_classes.txt --output_dir Yolo_annotation_1 --annot_file Yolo_TF_annotation --output_format single

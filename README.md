@@ -63,7 +63,20 @@ Now, run the following code from the `insect_recognition/` root directory of thi
 ```
  python prepare_annotation.py
 ```
-You will see the timeline of the reformatation process. This code will create `labels` folder to located the formated annotations. 
+You will see the timeline of the reformatation process. This code will create `Yolo_annotation/` folder to located the formated annotations. 
+Note that `python prepare_annotation.py` can take six differents arguments including :
+- `--data_dir` default value `data_dir`, indicate the root data folder
+- `--output_format` default value `multiple`, indicate if formated annotations should be save in a single output file or multiple files
+- `--classes_filepath` default value `datasets/classes.txt`, the path to the file tisting the names of classes
+- `--output_dir` default value `Yolo_annotation`, the folder to save all annotations files output in case `--output_format` is set to `multiple` 
+- `--annot_file` default value `all_annot.txt`, the output file to save all annotations in case `--output_format` is set to `single`.
+- `--input_annot_dir`default value `xmls`, the folder name where `.xml` are located. For some dataset, images as well as annatations are spread in different folders. `prepare_annotation.py` is able to handle this situation provided that all annotation folder have the same name and all image folder have the name which should be different from that of annotation folder and include the strint `image` no mater the case `lower` or `upper`.
+
+Hence, the code `python prepare_annotation.py` suppose all the argument are properly set to default options otherwise, the following code shoud be use with proper argument values.
+```
+ python prepare_annotation.py --data_dir road2020/train --classes_filepath road2020/damages_details_classes.txt --output_dir Yolo_annotation --annot_file Yolo_TF_annotation --output_format multiple
+```
+The arguments value ara given for illustration and should be modified consequently.
 
 The last think to do concerning the data set should have been to download [`classes.txt`](https://github.com/xpwu95/IP102/blob/master/classes.txt) file which containts the 102 classes of insects. I have done that and you can find this file in `datasets/`.
 
