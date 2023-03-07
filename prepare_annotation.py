@@ -212,8 +212,8 @@ if (__name__ == "__main__"):
     parser.add_argument('--data_dir', type=str, default="datasets/", help='root data directory')
     parser.add_argument('--output_format', type=str, default="multiple", help='output in single or multiple file')
     parser.add_argument('--classes_filepath', type=str, default="datasets/classes.txt", help='class name file')
-    parser.add_argument('--output_dir', type=str, default="Yolo_annotation", help='output text directory')
-    parser.add_argument('--annot_file', type=str, default="all_annot.txt", help='output file with all annotations')
+    parser.add_argument('--output_dir', type=str, default="Yolo_annotation/", help='output text directory')
+    parser.add_argument('--annot_file', type=str, default="all_annotations.txt", help='output file with all annotations')
     parser.add_argument('--input_annot_dir', type=str, default="xmls", help='End input folder name where are annotation files')
     opt = parser.parse_args()
 

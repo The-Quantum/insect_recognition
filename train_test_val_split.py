@@ -2,9 +2,15 @@ import os
 import random
 import shutil
 import tqdm
+import argparse
 from matplotlib import image
 import numpy as np
 from tqdm import tqdm
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--test_ratio', type=float, default=.6, help='trainset proportion')
+parser.add_argument('--val_ratio', type=float, default=.2, help='testset proportion')
+opt = parser.parse_args()
 
 PRESENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -24,8 +30,8 @@ val_ratio  = 0.2
 test_ratio = 0.2
 
 train, val, test = np.split(np.array(SPLIT_IMAGE_NAME), 
-            [int(len(SPLIT_IMAGE_NAME) * (1 - (val_ratio + test_ratio))),
-            int(len(SPLIT_IMAGE_NAME) * (1 - val_ratio))]
+            [int(len(SPLIT_IMAGE_NAME) * (1 - (opt.val_ratio + opt.test_ratio))),
+            int(len(SPLIT_IMAGE_NAME) * (1 - opt.val_ratio))]
         )
 
 print("Train size %s, Val size %s, test size %s 11388 3796 3797", len(train), len(val), len(test))
