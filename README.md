@@ -72,12 +72,13 @@ Now, to prepare annotations in YOLO format, run the following code from the `ins
 ```
 You will see the timeline of the reformatation process. This code will create `Yolo_annotation/` folder to located the formated annotation files. 
 Note that `python prepare_annotation.py` can take six differents arguments including :
-- `--data_dir` default value `datasets/`, indicates the dataset folder
-- `--output_format` default value `multiple`, indicates if formated annotations should be save in a `single` output file or `multiple` files
-- `--classes_filepath` default value `datasets/classes.txt`, the path to the classe name file
-- `--output_dir` default value `Yolo_annotation/`, the folder to save annotation output files in case `--output_format` is set to `multiple` 
-- `--annot_file` default value `all_annotations.txt`, the output file to save all annotations in case `--output_format` is set to `single`.
-- `--input_annot_dir`default value `xmls`, the folder name where `.xml` files are located. For some dataset, images as well as annatations are spread in different folders. `prepare_annotation.py` is able to handle this situation provided that all annotation folders have the same name and all image folders have the same name but different from that of annotation folders and include the strint `image` no mater the case `lower` or `upper`.
+- `--data_dir` default=`datasets/`, indicates the dataset folder
+- `--output_format` default=multiple`, indicates if formated annotations should be save in a `single` output file or `multiple` files
+- `--classes_filepath` default=`datasets/classes.txt`, the path to the classe name file
+- `--input_annotations_dir` default=`datasets/Annotations`, help='root data directory'
+- `--output_dir` default=`Yolo_annotation/`, the folder to save annotation output files in case `--output_format` is set to `multiple` 
+- `--annot_file` default=`all_annotations.txt`, the output file to save all annotations in case `--output_format` is set to `single`.
+- `--annotation_file_mode`default=`spread`, can take two possible values `spread` or `grouped`. Define if all annotations files are regrouped in a single folder or spread in different folders. Endeed, for some dataset, images as well as annatations are spread in different folders. `prepare_annotation.py` handles both cases. Provide the value of the argument corresponding to use case. However, the `spread` also works even in case of regrouped files but a bit slower. 
 
 The following code provides a detailed way of running `prepare_annotation.py`. The arguments value ara given for illustration and should be modified consequently.
 ```

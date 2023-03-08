@@ -1,3 +1,9 @@
+"""This module enables to transfome .xml annataions file to .txt annataions files compatible with YOLO.
+   If all annotations files are all regrouped in a single folder provide the path to the folder --input_annotations_dir.
+   If all annotations files are all not regrouped in a single folder but spread in different folders make sure all 
+   those folders have the parent folder which will be indicated with the --data_dir.
+"""
+
 import os
 import xml.etree.ElementTree as ET
 import argparse
@@ -40,7 +46,7 @@ class XMLHandler():
             }
     
     def parse(self, annotation_filepath):
-        
+        print(annotation_filepath)
         tree = ET.parse(annotation_filepath)
         
         annotations = {
@@ -212,9 +218,12 @@ if (__name__ == "__main__"):
     parser.add_argument('--data_dir', type=str, default="datasets/", help='root data directory')
     parser.add_argument('--output_format', type=str, default="multiple", help='output in single or multiple file')
     parser.add_argument('--classes_filepath', type=str, default="datasets/classes.txt", help='class name file')
+    parser.add_argument('--input_annotations_dir', type=str, default="datasets/Annotations", help='folder where annotations are located')
     parser.add_argument('--output_dir', type=str, default="Yolo_annotation/", help='output text directory')
     parser.add_argument('--annot_file', type=str, default="all_annotations.txt", help='output file with all annotations')
-    parser.add_argument('--input_annot_dir', type=str, default="xmls", help='End input folder name where are annotation files')
+    parser.add_argument('--input_annot_dir', type=str, default="xml", help='End input folder name where are annotation files')
+    parser.add_argument('--annotation_file_mode', type=str, default="spread", # can take 2 values grouped or spread
+                        help='Define if annotations files are all regrouped in a single folder or spread in different folders')
     opt = parser.parse_args()
 
     Preparator = XMLHandler(
@@ -224,18 +233,40 @@ if (__name__ == "__main__"):
         classes_filepath = opt.classes_filepath
     )
     
-    # Identify in datasets/ arborescence all annotation dirs
-    annotation_dirs = [
-        x[0] for x in os.walk(opt.data_dir) if 
-                    opt.input_annot_dir.lower() in x[0].lower()
-    ]
+    if opt.annotation_file_mode.lower() == "grouped" : 
+        if os.path.exists(opt.input_annotations_dir):
+            annotation_dirs = [opt.input_annotations_dir] 
+
+        else :
+            print(f'''
+            The provided annotations directory :{opt.input_annotations_dir} 
+            does not exists. Check it run prepare annotation module agains
+            ''')
+            exit()
     
-    # Exclude from the newly created annotation arborescente all the annotations dirs
-    if os.path.exists(os.path.join(opt.data_dir, opt.output_dir)):
+    elif opt.annotation_file_mode.lower() == "spread" : 
+
+        # Identify in datasets/ arborescence all annotation dirs while excluding 
+        # opt.data_dir and opt.output_dir if it exists
         annotation_dirs = [
-            x for x in annotation_dirs if opt.output_dir.lower() not in x.lower()
+            x[0] for x in os.walk(opt.data_dir) if x[0].lower() not in [
+                opt.output_dir.split("/")[0].lower(), opt.data_dir.lower()
+            ]
         ]
-    
+        
+        # Filtter opt.output_dir path from the annotations list
+        if os.path.exists(os.path.join(opt.data_dir, opt.output_dir)):
+            annotation_dirs = [
+                x for x in annotation_dirs 
+                if x.lower() not in os.path.join(opt.data_dir, opt.output_dir).lower()
+            ]
+        # Filtter all path not containing "annotation" or "label" strings
+        # This line impose that annatations folders must explicitely containts either 
+        # "annotation" or "label"    
+        annotation_dirs = [
+            x for x in annotation_dirs if ("annotation" in x.lower()) or ("label" in x.lower())
+        ]
+
     if opt.output_format == "single":
         all_annotations_filepath = os.path.join(
             opt.data_dir, opt.annot_file
@@ -243,8 +274,11 @@ if (__name__ == "__main__"):
         f = open(all_annotations_filepath, "w")
 
     for dir in tqdm(annotation_dirs):
-        
+ 
         for file in os.listdir(dir):
+            print(file)
+            if not file.lower().endswith((".xml", ".xmls")):
+                continue
             annotation_file_path = os.path.join(dir, file)
             annotations = Preparator.parse(annotation_file_path)
             if "object" not in annotations.keys():

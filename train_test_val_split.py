@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--test_ratio', type=float, default=.6, help='trainset proportion')
+parser.add_argument('--test_ratio', type=float, default=.2, help='trainset proportion')
 parser.add_argument('--val_ratio', type=float, default=.2, help='testset proportion')
 opt = parser.parse_args()
 
@@ -25,9 +25,6 @@ VAL_DIR   = os.path.join(PRESENT_DIR, "datasets/val")
 IMAGE_LIST = os.listdir(IMAGE_DIR)
 SPLIT_IMAGE_NAME = random.shuffle(IMAGE_LIST)
 SPLIT_IMAGE_NAME = [filename.split(".")[0] for filename in IMAGE_LIST]
-
-val_ratio  = 0.2
-test_ratio = 0.2
 
 train, val, test = np.split(np.array(SPLIT_IMAGE_NAME), 
             [int(len(SPLIT_IMAGE_NAME) * (1 - (opt.val_ratio + opt.test_ratio))),
