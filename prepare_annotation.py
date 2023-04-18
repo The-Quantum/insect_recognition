@@ -172,7 +172,7 @@ class XMLHandler():
         return coords    
     
     def txt_file_path(self, annotation_filepath, annotations):
-        file_name = annotation_filepath.split("/")[-1]
+        file_name = annotation_filepath.split(os.sep)[-1]
         
         if file_name.split(".")[0] == annotations["filename"].split(".")[0]:
 

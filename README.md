@@ -6,7 +6,7 @@ The method consist of retraining [YOLOv5](https://github.com/ultralytics/yolov5)
 Insect pests are well known to be a major cause of damage to the agricultural crops with important commercial losses [IP102: A Large-Scale Benchmark Dataset for Insect Pest Recognition](https://openaccess.thecvf.com/content_CVPR_2019/papers/Wu_IP102_A_Large-Scale_Benchmark_Dataset_for_Insect_Pest_Recognition_CVPR_2019_paper.pdf). Our goal here is to retrained `YOLOv5` model on [IP102](https://github.com/xpwu95/IP102) dataset as it has proven state of the art efficiency on object detection datasets in various contexts. We will then evaluate the performances of the newly retrained YOLOv5 and see how it performs in the context of insect detaction and recognition. 
 
 # Getting started
-To execute this repositoy on your local computer, the first step is to clone it. To do so, execute the following code.
+To run this code on your local computer, the first step is to clone the repositoy. To do so, execute the following code.
 ```
 git clone https://github.com/The-Quantum/insect_recognition.git
 ```
@@ -45,11 +45,11 @@ In the example of the figure, the annototion file will containt **4 lines** corr
 To train `YOLOv5` on a given dataset, the first requirement is to prepare the annotations of the training dataset correspondingly to the above described Yolo format. 
 
 ## IP102 data annotation format
-[IP102](https://github.com/xpwu95/IP102) dataset contains more than 75.000 images belonging to 102 categories. About 19.000 images are annotated with bounding boxes for object detection. However, the annotation are save into `.xml` files which are note compatible with YOLOv5. Each `.xml` file prevides information of the bounding boxes containing an insect in the image as well as the correspnding insect class. Also the filename and the size `(width, hight, depth)` of the corresponding image are provided in each annotation file. In case a given image contains many insects, the corresponding `xml` annotation file provides as much bounding box as there are insects.
+[IP102](https://github.com/xpwu95/IP102) dataset contains more than 75.000 images belonging to 102 categories. About 19.000 images are annotated with bounding boxes for object detection. However, the annotation are saved into `.xml` files which are note compatible with YOLOv5. Each `.xml` file prevides information of the bounding boxes containing an insect in the image as well as the correspnding insect class. Also the filename and the size `(width, hight, depth)` of the corresponding image are provided in each annotation file. In case a given image contains many insects, the corresponding `xml` annotation file provides as much bounding box as there are insects.
 
 Bounding boxes are provided in the format ```x_min, y_min, x_main, y_max``` where `(x_min, y_mim)` are the coordinates of the to left corner and `(x_min, y_mim)` that of the bottom right corner. 
 
-Therefore, it is require to write a module that adapts these annotations into YOLOv5 format. It is the purpose of `prepare_annotation.py` module.
+Therefore, it is required to write a module that convert these annotations into YOLOv5 format. It is the purpose of `prepare_annotation.py` module.
 
 To run the annotations module, first download [IP102 v1.1](https://drive.google.com/drive/folders/1svFSy2Da3cVMvekBwe13mzyx38XZ9xWo?usp=sharing) dataset and the corresponding annotations. When you follow the link, make sure to choose detection data as it is the purpose of this repository.
 
@@ -73,14 +73,16 @@ Now, to prepare annotations in YOLO format, run the following code from the `ins
 You will see the timeline of the reformatation process. This code will create `Yolo_annotation/` folder to located the formated annotation files. 
 Note that `python prepare_annotation.py` can take six differents arguments including :
 - `--data_dir` default=`datasets/`, indicates the dataset folder
-- `--output_format` default=multiple`, indicates if formated annotations should be save in a `single` output file or `multiple` files
+- `--output_format` default=`multiple`, indicates if the converted annotations should be saved in a `single` output file or `multiple` files
 - `--classes_filepath` default=`datasets/classes.txt`, the path to the classe name file
 - `--input_annotations_dir` default=`datasets/Annotations`, help='root data directory'
 - `--output_dir` default=`Yolo_annotation/`, the folder to save annotation output files in case `--output_format` is set to `multiple` 
 - `--annot_file` default=`all_annotations.txt`, the output file to save all annotations in case `--output_format` is set to `single`.
-- `--annotation_file_mode`default=`spread`, can take two possible values `spread` or `grouped`. Define if all annotations files are regrouped in a single folder or spread in different folders. Endeed, for some dataset, images as well as annatations are spread in different folders. `prepare_annotation.py` handles both cases. Provide the value of the argument corresponding to use case. However, the `spread` also works even in case of regrouped files but a bit slower. 
+- `--annotation_file_mode` default=`spread`, can take two possible values `spread` or `grouped`. Define if all annotations files are regrouped in a single folder or spread in different folders. Endeed, for some dataset, images as well as annatations are spread in different folders. `prepare_annotation.py` handles both cases. You simply need to provide the correct value of arguments according to the use case. Note that, the option `spread` also works even in case of regrouped files but a bit slower. 
+<div align="center">Examples of spread and grouped data</div>
+<p align="center"><img width="800" alt="PR_step1" src="https://github.com/The-Quantum/insect_recognition/blob/main/notebook/SPREAD_and_grpup_dataset_organisation.png"></p>
 
-The following code provides a detailed way of running `prepare_annotation.py`. The arguments value ara given for illustration and should be modified consequently.
+The following code provides a detailed way of running `prepare_annotation.py`. The arguments value are given for illustration and should be modified consequently.
 ```
  python prepare_annotation.py --data_dir road2020/train --classes_filepath road2020/damages_details_classes.txt --output_dir Yolo_annotation --annot_file Yolo_TF_annotation --output_format multiple
 ```
